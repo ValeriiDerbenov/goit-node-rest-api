@@ -10,6 +10,8 @@ app.use(morgan("tiny"));
 app.use(cors());
 app.use(express.json());
 
+const { PORT = 3000 } = process.env;
+
 app.use("/api/contacts", contactsRouter);
 
 app.use((_, res) => {
@@ -21,6 +23,6 @@ app.use((err, req, res, next) => {
   res.status(status).json({ message });
 });
 
-app.listen(3000, () => {
-  console.log("Server is running. Use our API on port: 3000");
+app.listen(PORT, () => {
+  console.log(`Server running. Use our API on port: ${PORT}`);
 });
