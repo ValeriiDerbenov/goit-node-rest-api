@@ -5,9 +5,11 @@ import cors from "cors";
 
 import contactsRouter from "./routes/contactsRouter.js";
 import mongoose from "mongoose";
-// import { DB_HOST } from "./config.js";
 
-const { DB_HOST } = process.env;
+import { config } from "dotenv";
+config();
+
+const { DB_HOST, PORT = 3000 } = process.env;
 
 mongoose.set("strictQuery", true);
 mongoose
@@ -26,8 +28,6 @@ const app = express();
 app.use(morgan("tiny"));
 app.use(cors());
 app.use(express.json());
-
-const { PORT = 3000 } = process.env;
 
 app.use("/api/contacts", contactsRouter);
 
