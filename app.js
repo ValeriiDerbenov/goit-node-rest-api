@@ -5,10 +5,9 @@ import cors from "cors";
 
 import contactsRouter from "./routes/contactsRouter.js";
 import mongoose from "mongoose";
+import { DB_HOST } from "./config.js";
 
-const DB_HOST =
-  "mongodb+srv://Valerii:8eJWogeZ4MjerDeu@cluster0.ytiifez.mongodb.net/my_contacts?retryWrites=true&w=majority&appName=Cluster0";
-
+mongoose.set("strictQuery", true);
 mongoose
   .connect(DB_HOST)
   .then(() => {
