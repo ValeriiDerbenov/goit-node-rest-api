@@ -1,8 +1,24 @@
+// 8eJWogeZ4MjerDeu Valerii
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 
 import contactsRouter from "./routes/contactsRouter.js";
+import mongoose from "mongoose";
+
+const DB_HOST =
+  "mongodb+srv://Valerii:8eJWogeZ4MjerDeu@cluster0.ytiifez.mongodb.net/my_contacts?retryWrites=true&w=majority&appName=Cluster0";
+
+mongoose
+  .connect(DB_HOST)
+  .then(() => {
+    app.listen((PORT = 3000));
+    console.log("Database connection successful");
+  })
+  .catch((error) => {
+    console.log(error.message);
+    // process.exit(1);
+  });
 
 const app = express();
 
