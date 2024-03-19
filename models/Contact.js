@@ -5,7 +5,7 @@ const contact = new Schema(
   {
     name: {
       type: String,
-      required: [true, "Set name for contact"],
+      required: true,
     },
     email: {
       type: String,
@@ -15,7 +15,7 @@ const contact = new Schema(
     },
     favorite: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   { versionKey: null }
