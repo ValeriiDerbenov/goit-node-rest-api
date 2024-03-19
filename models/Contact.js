@@ -15,10 +15,10 @@ const contact = new Schema(
     },
     favorite: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
-  { versionKey: null }
+  { versionKey: false, timestamps: true }
 );
 contact.post("save", handleSaveError);
 contact.pre("findOneAndUpdate", setUpdateSettings);
