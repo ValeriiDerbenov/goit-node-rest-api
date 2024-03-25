@@ -12,8 +12,8 @@ export const sighinSchema = Joi.object({
   password: Joi.string().min(6).required(),
 });
 
-const schemas = {
-  sighupSchema,
-  sighinSchema,
-};
-export default schemas;
+// const schemas = {
+//   sighupSchema,
+//   sighinSchema,
+// };
+// export default schemas;
