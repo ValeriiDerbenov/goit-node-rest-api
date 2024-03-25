@@ -1,24 +1,27 @@
 import { Schema, model } from "mongoose";
 import { handleSaveError, setUpdateSettings } from "./hooks.js";
-// import emailRegexp from "../constants/user-constants.js";
-
-const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+import { emailRegexp } from "../constants/user-constants.js";
 
 const userSchema = new Schema(
   {
-    name: {
+    password: {
       type: String,
-      required: true,
+      required: [true, "Password is required"],
     },
     email: {
       type: String,
       match: emailRegexp,
-      required: true,
+      required: [true, "Email is required"],
+      unique: true,
     },
-    password: {
+    subscription: {
       type: String,
-      minlenths: 6,
-      required: true,
+      enum: ["starter", "pro", "business"],
+      default: "starter",
+    },
+    token: {
+      type: String,
+      default: null,
     },
   },
   { versionKey: false, timestamps: true }

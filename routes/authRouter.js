@@ -1,11 +1,11 @@
 import express from "express";
-import isValidId from "../middlewares/isValidId.js";
-import schemas from "../schemas/userSchema.js"; // {sighupSchema, sighinSchema, schemas}
-import { signup, signin } from "../controllers/authControllers.js";
+import { sighupSchema, sighinSchema } from "../schemas/userSchema.js";
+import { login, logout, register } from "../controllers/authControllers.js";
 import validateBody from "../helpers/validateBody.js";
 
 const authRouter = express.Router();
-authRouter.post("/signup", validateBody(schemas.sighupSchema), signup);
-// authRouter.post("/signin", isValidId, schemas.sighinSchema, signin);
+authRouter.post("/register", validateBody(sighupSchema), register);
+authRouter.post("/login", validateBody(sighinSchema), login);
+// authRouter.get("/current", validateBody(sighinSchema), logout);
 
 export default authRouter;
