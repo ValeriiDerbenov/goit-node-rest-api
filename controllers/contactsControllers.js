@@ -4,21 +4,25 @@ import {
   updateContactSchema,
 } from "../schemas/contactsSchemas.js";
 import * as contactsService from "../services/contactsServices.js";
+import {
+  listContacts,
+  getContactById,
+  removeContact,
+  addContact,
+  updateStatus,
+} from "../services/contactsServices.js";
+import { catchAsync } from "../helpers/catchAsync.js";
 
-export const getAllContacts = async (req, res, next) => {
-  try {
-    const result = await contactsService.listContacts();
-
-    res.json(result);
-  } catch (error) {
-    next(error);
-  }
-};
+export const getAllContacts = catchAsync(async (req, res) => {
+  const { _id: owner } = req.user;
+  const contacts = await listContacts(owner).populate("owner", " email name");
+  res.status(200).json(contacts);
+});
 
 export const getOneContact = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await contactsService.getContactById(id);
+    const result = await getContactById(id);
     if (!result) {
       throw HttpError(404);
     }
@@ -31,7 +35,7 @@ export const getOneContact = async (req, res, next) => {
 export const deleteContact = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await contactsService.removeContact(id);
+    const result = await removeContact(id);
     if (!result) {
       throw HttpError(404);
     }
@@ -46,7 +50,7 @@ export const createContact = async (req, res, next) => {
     const { error } = createContactSchema.validate(req.body);
     if (error) throw HttpError(400, error.message);
 
-    const result = await contactsService.addContact(req.body);
+    const result = await addContact(req.body);
 
     res.status(201).json(result);
   } catch (error) {
@@ -86,7 +90,7 @@ export const updateStatusContact = async (req, res, next) => {
       throw HttpError(400, error.message);
     }
 
-    const result = await contactsService.updateStatus(id, req.body);
+    const result = await updateStatus(id, req.body);
     if (!result) {
       throw HttpError(404);
     }
