@@ -9,6 +9,7 @@ import {
 } from "../controllers/contactsControllers.js";
 import isValidId from "../middlewares/isValidId.js";
 import authenticate from "../middlewares/authenticate.js";
+import validateBody from "../helpers/validateBody.js";
 
 const contactsRouter = express.Router();
 
@@ -20,7 +21,13 @@ contactsRouter.delete("/:id", authenticate, isValidId, deleteContact);
 
 contactsRouter.post("/", authenticate, createContact);
 
-contactsRouter.put("/:id", authenticate, isValidId, updateContact);
+contactsRouter.put(
+  "/:id",
+  authenticate,
+  validateBody,
+  isValidId,
+  updateContact
+);
 
 contactsRouter.patch(
   "/:id/favorite",
