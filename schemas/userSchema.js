@@ -11,9 +11,3 @@ export const sighinSchema = Joi.object({
   email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
 });
-
-// const schemas = {
-//   sighupSchema,
-//   sighinSchema,
-// };
-// export default schemas;

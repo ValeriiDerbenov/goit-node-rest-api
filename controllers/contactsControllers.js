@@ -15,14 +15,20 @@ import { catchAsync } from "../helpers/catchAsync.js";
 
 export const getAllContacts = catchAsync(async (req, res) => {
   const { _id: owner } = req.user;
-  const contacts = await listContacts(owner).populate("owner", " email name");
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const contacts = await listContacts({ owner }, "-createdAt -updatedAt", {
+    skip: skip,
+    limit,
+  }).populate("owner", " email name");
   res.status(200).json(contacts);
 });
 
 export const getOneContact = async (req, res, next) => {
   try {
+    const { _id: owner } = req.user;
     const { id } = req.params;
-    const result = await getContactById(id);
+    const result = await getContactById({ _id: id, owner });
     if (!result) {
       throw HttpError(404);
     }
@@ -35,7 +41,8 @@ export const getOneContact = async (req, res, next) => {
 export const deleteContact = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await removeContact(id);
+    const { _id: owner } = req.user;
+    const result = await removeContact({ _id: id, owner });
     if (!result) {
       throw HttpError(404);
     }
@@ -47,10 +54,11 @@ export const deleteContact = async (req, res, next) => {
 
 export const createContact = async (req, res, next) => {
   try {
+    const { _id: owner } = req.user;
     const { error } = createContactSchema.validate(req.body);
     if (error) throw HttpError(400, error.message);
 
-    const result = await addContact(req.body);
+    const result = await addContact(...req.body, owner);
 
     res.status(201).json(result);
   } catch (error) {

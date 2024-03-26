@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
+import { findUser, emailUnique, createUser } from "../services/authService.js";
 
 const { SECRET_KEY } = process.env;
 
@@ -11,16 +12,17 @@ const { SECRET_KEY } = process.env;
 export const register = async (req, res, next) => {
   const { name, email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
+    const user = await emailUnique(email);
     if (user) {
       throw HttpError(409, "Email is already in use");
     }
-    const hashPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({ ...req.body, password: hashPassword });
+
+    const newUser = await createUser({ ...req.body });
     res.status(201).json({
-      name: newUser.name,
-      email: newUser.email,
-      // subscription: newUser.subscription,
+      user: {
+        email: newUser.email,
+        subscription: newUser.subscription,
+      },
     });
   } catch (error) {
     next(error);
@@ -41,7 +43,7 @@ export const login = async (req, res, next) => {
     const payload = {
       id: user._id,
     };
-    const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
+    const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "230h" });
 
     res.json({
       token,
@@ -54,21 +56,20 @@ export const login = async (req, res, next) => {
 };
 
 export const getCurrent = async (req, res, next) => {
-  const { subscription, email } = req.user;
-  res.json({
-    subscription,
-    email,
-  });
+  try {
+    const { email, subscription } = req.user;
+
+    res.json({ email, subscription });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const logout = async (req, res, next) => {
   try {
-    const { _id } = req.user;
-    await authServices.setToken(_id);
+    await User.findByIdAndUpdate(req.user._id, { token: null });
 
-    res.json({
-      message: "Signout success",
-    });
+    res.status(204).json();
   } catch (error) {
     next(error);
   }
