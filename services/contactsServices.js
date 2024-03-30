@@ -1,7 +1,7 @@
 import Contact from "../models/Contact.js";
 
-export const listContacts = (ownerId) =>
-  Contact.find({ owner: ownerId }, "-createdAt -updatedAt");
+export const listContacts = (ownerId = {}, query = {}) =>
+  Contact.find({ owner: ownerId }, "-createdAt -updatedAt", { ...query });
 
 export async function addContact(userId, { name, email, phone }) {
   try {
