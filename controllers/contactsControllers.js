@@ -19,22 +19,11 @@ export const getAllContacts = catchAsync(async (req, res) => {
   res.status(200).json(contacts);
 });
 
-// export const getAllContacts = catchAsync(async (req, res) => {
-//   const { _id: owner } = req.user;
-//   const { page = 1, limit = 10 } = req.query;
-//   const skip = (page - 1) * limit;
-//   const contacts = await listContacts({ owner }, "-createdAt -updatedAt", {
-//     skip: skip,
-//     limit,
-//   }).populate("owner", " email name");
-//   res.status(200).json(contacts);
-// });
-
 export const getOneContact = async (req, res, next) => {
   try {
     const { _id: owner } = req.user;
     const { id } = req.params;
-    const result = await getContactById({ _id: id, owner });
+    const result = await getContactById(id, owner);
     if (!result) {
       throw HttpError(404);
     }
@@ -48,7 +37,7 @@ export const deleteContact = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { _id: owner } = req.user;
-    const result = await removeContact({ _id: id, owner });
+    const result = await removeContact(id, owner);
     if (!result) {
       throw HttpError(404);
     }
@@ -57,12 +46,6 @@ export const deleteContact = async (req, res, next) => {
     next(error);
   }
 };
-
-// export const createContact = async (req, res) => {
-//   const { _id: owner } = req.user;
-//   const new_contact = await addContact(req.user._id, req.body, owner);
-//   res.status(201).json(new_contact);
-// };
 
 export const createContact = async (req, res, next) => {
   try {
