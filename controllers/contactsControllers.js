@@ -15,7 +15,12 @@ import { catchAsync } from "../helpers/catchAsync.js";
 
 export const getAllContacts = catchAsync(async (req, res) => {
   const { _id: owner } = req.user;
-  const contacts = await listContacts(owner).populate("owner", "name email");
+  const { page = 1, limit = 2 } = req.query;
+  const skip = (page - 1) * limit;
+  const contacts = await listContacts(owner, { skip, limit }).populate(
+    "owner",
+    "name email"
+  );
   res.status(200).json(contacts);
 });
 
@@ -39,7 +44,7 @@ export const deleteContact = async (req, res, next) => {
     const { _id: owner } = req.user;
     const result = await removeContact(id, owner);
     if (!result) {
-      throw HttpError(404);
+      throw HttpError(404, `Contact with id=${id} not found`);
     }
     res.json(result);
   } catch (error) {
