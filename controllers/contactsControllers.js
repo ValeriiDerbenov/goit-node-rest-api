@@ -10,18 +10,17 @@ import {
   removeContact,
   addContact,
   updateStatus,
+  countContacts,
 } from "../services/contactsServices.js";
 import { catchAsync } from "../helpers/catchAsync.js";
 
 export const getAllContacts = catchAsync(async (req, res) => {
   const { _id: owner } = req.user;
-  const { page = 1, limit = 2 } = req.query;
+  const { page = 1, limit = 3 } = req.query;
   const skip = (page - 1) * limit;
-  const contacts = await listContacts(owner, { skip, limit }).populate(
-    "owner",
-    "name email"
-  );
-  res.status(200).json(contacts);
+  const contacts = await listContacts(owner, { skip, limit }).populate("owner");
+  const total = await countContacts(owner);
+  res.status(200).json({ contacts, total });
 });
 
 export const getOneContact = async (req, res, next) => {
