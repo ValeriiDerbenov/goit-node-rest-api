@@ -15,14 +15,20 @@ import { catchAsync } from "../helpers/catchAsync.js";
 
 export const getAllContacts = catchAsync(async (req, res) => {
   const { _id: owner } = req.user;
-  const { page = 1, limit = 10 } = req.query;
-  const skip = (page - 1) * limit;
-  const contacts = await listContacts({ owner }, "-createdAt -updatedAt", {
-    skip: skip,
-    limit,
-  }).populate("owner", " email name");
+  const contacts = await listContacts(owner).populate("owner", "name email");
   res.status(200).json(contacts);
 });
+
+// export const getAllContacts = catchAsync(async (req, res) => {
+//   const { _id: owner } = req.user;
+//   const { page = 1, limit = 10 } = req.query;
+//   const skip = (page - 1) * limit;
+//   const contacts = await listContacts({ owner }, "-createdAt -updatedAt", {
+//     skip: skip,
+//     limit,
+//   }).populate("owner", " email name");
+//   res.status(200).json(contacts);
+// });
 
 export const getOneContact = async (req, res, next) => {
   try {
@@ -52,13 +58,19 @@ export const deleteContact = async (req, res, next) => {
   }
 };
 
+// export const createContact = async (req, res) => {
+//   const { _id: owner } = req.user;
+//   const new_contact = await addContact(req.user._id, req.body, owner);
+//   res.status(201).json(new_contact);
+// };
+
 export const createContact = async (req, res, next) => {
   try {
     const { _id: owner } = req.user;
     const { error } = createContactSchema.validate(req.body);
     if (error) throw HttpError(400, error.message);
 
-    const result = await addContact(...req.body, owner);
+    const result = await addContact(req.user._id, req.body, owner);
 
     res.status(201).json(result);
   } catch (error) {
