@@ -24,9 +24,9 @@ const contactSchema = new Schema(
   },
   { versionKey: false, timestamps: true }
 );
-// contactSchema.post("save", handleSaveError);
-// contactSchema.pre("findOneAndUpdate", setUpdateSettings);
-// contactSchema.post("findOneAndUpdate", handleSaveError);
+contactSchema.post("save", handleSaveError);
+contactSchema.pre("findOneAndUpdate", setUpdateSettings);
+contactSchema.post("findOneAndUpdate", handleSaveError);
 
 const Contact = model("contact", contactSchema);
 
