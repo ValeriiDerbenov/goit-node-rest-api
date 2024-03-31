@@ -39,31 +39,22 @@ export async function getContactById(contactId, owner) {
 
 export async function removeContact(contactId, owner) {
   try {
-    const contact = await Contact.findOne({
-      _id: contactId,
-      owner,
-    });
-
+    const contact = await Contact.findOneAndDelete({ _id: contactId, owner });
     if (!contact) {
       return null;
     }
-    await Contact.findByIdAndDelete(contactId);
     return contact;
   } catch (error) {
     console.error(null);
   }
 }
 
-export async function updateContact(id, contact_data) {
+export async function updateContact(id, contact_data, owner) {
   try {
-    const contact = await Contact.findById(id);
-
-    if (!contact) {
-      return null;
-    }
     const updated_contact = await Contact.findOneAndUpdate(
       { _id: id },
       contact_data,
+      owner,
       {
         new: true,
       }
@@ -74,4 +65,5 @@ export async function updateContact(id, contact_data) {
   }
 }
 
-export const updateStatus = (id, body) => Contact.findByIdAndUpdate(id, body);
+export const updateStatus = (id, body, owner) =>
+  Contact.findByIdAndUpdate(id, body, owner);
