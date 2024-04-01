@@ -26,7 +26,6 @@ export async function addContact(userId, { name, email, phone }) {
 export async function getContactById(contactId, owner) {
   try {
     const contact = await Contact.findOne({ _id: contactId, owner });
-
     if (!contact) {
       return null;
     } else {
@@ -52,12 +51,9 @@ export async function removeContact(contactId, owner) {
 export async function updateContact(id, contact_data, owner) {
   try {
     const updated_contact = await Contact.findOneAndUpdate(
-      { _id: id },
+      { _id: id, owner },
       contact_data,
-      owner,
-      {
-        new: true,
-      }
+      { new: true }
     );
     return updated_contact;
   } catch (error) {
@@ -65,5 +61,15 @@ export async function updateContact(id, contact_data, owner) {
   }
 }
 
-export const updateStatus = (id, body, owner) =>
-  Contact.findByIdAndUpdate(id, body, owner);
+export async function updateStatus(id, contact_data, owner) {
+  try {
+    const updated_status = await Contact.findOneAndUpdate(
+      { _id: id, owner },
+      contact_data,
+      { new: true }
+    );
+    return updated_status;
+  } catch (error) {
+    console.error(error.message);
+  }
+}
