@@ -94,7 +94,7 @@ export const updateAvatar = async (req, res, next) => {
 
     Jimp.read(oldPath, (err, lenna) => {
       if (err) throw err;
-      lenna.resize(250, 250).write(`${avatarsDir}/${filename}`);
+      lenna.resize(250, 250).write(path.join("public", "avatars", filename));
       fs.rm(oldPath);
     });
     const avatarURL = path.join("avatars", filename);
