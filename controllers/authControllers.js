@@ -4,11 +4,19 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
-import { findUser, emailUnique, createUser } from "../services/authService.js";
+import {
+  findUser,
+  emailUnique,
+  createUser,
+  setAvatar,
+} from "../services/authService.js";
 import fs from "fs/promises";
 import path from "path";
 import { resizeImage } from "../middlewares/imageHelpers.js";
 import { v4 as uuidv4 } from "uuid";
+import Jimp from "jimp";
+
+// const gravatar = require("gravatar");
 
 const { SECRET_KEY } = process.env;
 
@@ -25,10 +33,12 @@ export const register = async (req, res, next) => {
     }
 
     const newUser = await createUser({ ...req.body });
+    const { avatarURL } = newUser;
     res.status(201).json({
       user: {
         email: newUser.email,
         subscription: newUser.subscription,
+        avatarURL,
       },
     });
   } catch (error) {
@@ -84,29 +94,20 @@ export const logout = async (req, res, next) => {
   }
 };
 
-export const updateAvatar = async (req, res) => {
+export const updateAvatar = async (req, res, next) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: "The file was not attached" });
-    }
-    const { path: oldPath, originalname } = req.file;
-    const { _id: userId } = req.user;
+    const { _id } = req.user;
+    const { path: oldPath, filename } = req.file;
 
-    await fs.mkdir(tmpDir, { recursive: true });
-
-    await resizeImage(oldPath);
-
-    const newImageName = `${userId}_${uuidv4()}${path.extname(originalname)}`;
-
-    const newPath = path.join(avatarsDir, newImageName);
-    await fs.rename(oldPath, newPath);
-
-    const updatedUser = await authServices.updateUser(userId, {
-      avatarURL: `/avatars/${newImageName}`,
+    Jimp.read(oldPath, (err, lenna) => {
+      if (err) throw err;
+      lenna.resize(250, 250).write(`${avatarsDir}\\${filename}`);
+      fs.rm(oldPath);
     });
-    res.status(200).json({
-      avatarURL: updatedUser.avatarURL,
-    });
+    const avatarURL = path.join("avatars", filename);
+
+    await setAvatar(_id, avatarURL);
+    return res.json({ avatarURL });
   } catch (error) {
     next(error);
   }
