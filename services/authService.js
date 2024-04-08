@@ -36,3 +36,6 @@ export const createUser = async (userData) => {
   );
   return newUser;
 };
+
+export const setAvatar = (id, avatarURL) =>
+  User.findByIdAndUpdate(id, { avatarURL });
