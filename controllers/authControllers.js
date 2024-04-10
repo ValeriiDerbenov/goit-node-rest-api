@@ -8,8 +8,10 @@ import { emailUnique, createUser, setAvatar } from "../services/authService.js";
 import fs from "fs/promises";
 import path from "path";
 import Jimp from "jimp";
+import { nanoid } from "nanoid";
+import sendEmail from "../helpers/sendEmail.js";
 
-const { SECRET_KEY } = process.env;
+const { SECRET_KEY, BASE_URL } = process.env;
 
 const avatarsDir = path.resolve("public/avatars");
 
@@ -20,7 +22,15 @@ export const register = async (req, res, next) => {
     if (user) {
       throw HttpError(409, "Email is already in use");
     }
-    const newUser = await createUser({ ...req.body });
+    const verificationCode = nanoid();
+    const newUser = await createUser({ ...req.body, verificationCode });
+    const verifyEmail = {
+      to: email,
+      subject: "Verify email",
+      html: `<a target="_blank" href="${BASE_URL}/api/users/verify/${verificationCode}">Click verify email</a>`,
+    };
+
+    await sendEmail(verifyEmail);
     const { avatarURL } = newUser;
     res.status(201).json({
       user: {
@@ -34,12 +44,38 @@ export const register = async (req, res, next) => {
   }
 };
 
+export const verify = async (req, res, next) => {
+  const { verificationCode } = req.params;
+  try {
+    const user = await User.findOne({ verificationCode });
+    if (!user) {
+      throw HttpError(404, "User not found or already verified");
+    }
+    await User.findByIdAndUpdate(
+      { _id: user._id },
+      {
+        verify: true,
+        verificationCode: "",
+      }
+    );
+    res.json({
+      message: "Email verification successful",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const login = async (req, res, next) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
     if (!user) {
       throw HttpError(401, "Email or password is invalid");
+    }
+
+    if (user.verify === false) {
+      throw HttpError(401, "Email not verified");
     }
     const passwordCompare = await bcrypt.compare(password, user.password);
     if (!passwordCompare) {

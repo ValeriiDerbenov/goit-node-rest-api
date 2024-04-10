@@ -6,6 +6,7 @@ import {
   logout,
   register,
   updateAvatar,
+  verify,
 } from "../controllers/authControllers.js";
 import validateBody from "../helpers/validateBody.js";
 import authenticate from "../middlewares/authenticate.js";
@@ -13,6 +14,7 @@ import upload from "../middlewares/upload.js";
 
 const authRouter = express.Router();
 authRouter.post("/register", validateBody(sighupSchema), register);
+authRouter.get("/verify/:verificationCode", verify);
 authRouter.post("/login", validateBody(sighinSchema), login);
 authRouter.get("/current", authenticate, getCurrent);
 authRouter.post("/logout", authenticate, logout);
